@@ -51,7 +51,7 @@ export default class World
          * Models
          */
         gltfLoader.load(
-            'assets/myRoomWithDraco.glb',
+            'assets/finalProduct.glb',
             (gltf)=>{
                 gltf.scene.position.set(1,1,1)
                 this.scene.add(gltf.scene)
