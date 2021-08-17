@@ -53,11 +53,11 @@ export default class World
         gltfLoader.load(
             'assets/myRoomWithDraco.glb',
             (gltf)=>{
+                gltf.scene.position.set(1,1,1)
                 this.scene.add(gltf.scene)
+
             }
         )
-
-      
 
         const directionalLight = new THREE.DirectionalLight('#ffffff', 3)
         directionalLight.position.set(5, 5, 5)
