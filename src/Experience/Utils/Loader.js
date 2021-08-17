@@ -72,6 +72,7 @@ export default class Resources extends EventEmitter
         // Draco
         const dracoLoader = new DRACOLoader()
         dracoLoader.setDecoderPath('draco')
+        // console.log(dracoLoader)
         dracoLoader.setDecoderConfig({ type: 'js' })
 
         this.loaders.push({
@@ -83,6 +84,7 @@ export default class Resources extends EventEmitter
                     this.fileLoadEnd(_resource, _data)
 
                     DRACOLoader.releaseDecoderModule()
+                    // console.log(_resource.source);
                 })
             }
         })
@@ -99,6 +101,7 @@ export default class Resources extends EventEmitter
                 {
                     this.fileLoadEnd(_resource, _data)
                 })
+                console.log('smth');
             }
         })
 

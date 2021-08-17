@@ -1,5 +1,8 @@
 import * as THREE from 'three'
 import Experience from './Experience.js'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+
 
 export default class World
 {
@@ -31,10 +34,30 @@ export default class World
 
     setRoom()
     {
+
+
         this.room = {}
         this.room.model = this.resources.items.roomModel.scene
 
-        this.scene.add(this.room.model)
+        // Draco loader
+        const dracoLoader = new DRACOLoader()
+        dracoLoader.setDecoderPath('draco/')
+
+        // GLTF loader
+        const gltfLoader = new GLTFLoader()
+        gltfLoader.setDRACOLoader(dracoLoader)
+
+        /**
+         * Models
+         */
+        gltfLoader.load(
+            'assets/myRoomWithDraco.glb',
+            (gltf)=>{
+                this.scene.add(gltf.scene)
+            }
+        )
+
+      
 
         const directionalLight = new THREE.DirectionalLight('#ffffff', 3)
         directionalLight.position.set(5, 5, 5)
