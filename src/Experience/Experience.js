@@ -1,8 +1,7 @@
 import * as THREE from 'three'
 import Time from './Utils/Time.js'
 import Sizes from './Utils/Sizes.js'
-import Stats from './Utils/Stats.js'
-
+import Stats from 'stats.js'
 import Resources from './Resources.js'
 import Renderer from './Renderer.js'
 import Camera from './Camera.js'
@@ -47,6 +46,8 @@ export default class Experience
         })
 
         this.update()
+
+
     }
 
     // static getInstance(_options = {})
@@ -83,10 +84,9 @@ export default class Experience
 
     setStats()
     {
-        if(this.config.debug)
-        {
-            this.stats = new Stats(true)
-        }
+        this.stats = new Stats()
+        this.stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
+        // document.body.appendChild( this.stats.dom );
     }
     
     setScene()
@@ -118,9 +118,7 @@ export default class Experience
 
     update()
     {
-        if(this.stats)
-            this.stats.update()
-        
+    
         this.camera.update()
 
         if(this.world)
@@ -131,7 +129,12 @@ export default class Experience
 
         window.requestAnimationFrame(() =>
         {
+            this.stats.begin()
+
             this.update()
+
+            this.stats.end()
+
         })
     }
 

@@ -54,10 +54,10 @@ export default class Renderer
         this.context = this.instance.getContext()
 
         // Add stats panel
-        if(this.stats)
-        {
-            this.stats.setRenderPanel(this.context)
-        }
+        // if(this.stats)
+        // {
+        //     this.stats.setRenderPanel(this.context)
+        // }
     }
 
     setPostProcess()
@@ -105,10 +105,10 @@ export default class Renderer
 
     update()
     {
-        if(this.stats)
-        {
-            this.stats.beforeRender()
-        }
+        // if(this.stats)
+        // {
+        //     this.stats.beforeRender()
+        // }
 
         if(this.usePostprocess)
         {
@@ -119,10 +119,10 @@ export default class Renderer
             this.instance.render(this.scene, this.camera.instance)
         }
 
-        if(this.stats)
-        {
-            this.stats.afterRender()
-        }
+        // if(this.stats)
+        // {
+        //     this.stats.afterRender()
+        // }
     }
 
     destroy()

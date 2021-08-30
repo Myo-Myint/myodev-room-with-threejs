@@ -101,7 +101,6 @@ export default class Resources extends EventEmitter
                 {
                     this.fileLoadEnd(_resource, _data)
                 })
-                console.log('smth');
             }
         })
 
