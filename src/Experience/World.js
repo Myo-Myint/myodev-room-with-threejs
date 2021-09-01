@@ -17,51 +17,39 @@ export default class World
         {
             if(_group.name === 'base')
             {
-                // this.setDummy()
                 this.setRoom()
             }
         })
     }
 
-    // setDummy()
-    // {
-    //     const cube = new THREE.Mesh(
-    //         new THREE.BoxGeometry(1, 1, 1),
-    //         new THREE.MeshBasicMaterial({ map: this.resources.items.lennaTexture })
-    //     )
-    //     this.scene.add(cube)        
-    // }
-
     setRoom()
     {
 
-
         this.room = {}
         this.room.model = this.resources.items.roomModel.scene
+        
 
-        // Draco loader
-        const dracoLoader = new DRACOLoader()
-        dracoLoader.setDecoderPath('draco/')
+        this.room.texture = this.resources.items.bakedOne
+        this.room.texture.encoding = THREE.sRGBEncoding
 
-        // GLTF loader
-        const gltfLoader = new GLTFLoader()
-        gltfLoader.setDRACOLoader(dracoLoader)
+        this.room.texture.flipY = false
+        this.room.material = new THREE.MeshBasicMaterial( {map: this.room.texture} )
 
-        /**
-         * Models
-         */
-        gltfLoader.load(
-            'assets/finalProduct.glb',
-            (gltf)=>{
-                gltf.scene.position.set(1,1,1)
-                this.scene.add(gltf.scene)
+        this.room.model.traverse( (_child) => {
+            if(_child instanceof THREE.Mesh){
+                _child.material = this.room.material
 
             }
-        )
+        } )
 
-        const directionalLight = new THREE.DirectionalLight('#ffffff', 3)
-        directionalLight.position.set(5, 5, 5)
-        this.scene.add(directionalLight)
+        this.room.speakerLight = this.room.model.children.find(child => child.name === 'speakerLight')
+        this.room.speakerLight.material = new THREE.MeshBasicMaterial( { color : '#F5EE15' } )
+
+        this.scene.add(this.room.model);
+
+        // const directionalLight = new THREE.DirectionalLight('#ffffff', 3)
+        // directionalLight.position.set(5, 5, 5)
+        // this.scene.add(directionalLight)
     }
 
     resize()

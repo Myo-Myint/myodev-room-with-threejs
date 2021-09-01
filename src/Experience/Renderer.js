@@ -44,7 +44,7 @@ export default class Renderer
 
         // this.instance.physicallyCorrectLights = true
         // this.instance.gammaOutPut = true
-        // this.instance.outputEncoding = THREE.sRGBEncoding
+        this.instance.outputEncoding = THREE.sRGBEncoding    
         // this.instance.shadowMap.type = THREE.PCFSoftShadowMap
         // this.instance.shadowMap.enabled = false
         // this.instance.toneMapping = THREE.ReinhardToneMapping
