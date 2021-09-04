@@ -55,8 +55,8 @@ export default class World
         this.room.sideTableLightTwo = this.room.model.children.find(child => child.name === 'sideTableLightTwo')
         this.room.sideTableLightTwo.material = new THREE.MeshBasicMaterial( { color : '#37B6FF' } )
 
-        // this.room.skateLight = this.room.model.children.find(child => child.name === 'skateLight')
-        // this.room.skateLight.material = new THREE.MeshBasicMaterial( { color : '#434EFF' } )
+        this.room.skateLight = this.room.model.children.find(child => child.name === 'skateLight')
+        this.room.skateLight.material = new THREE.MeshBasicMaterial( { color : '#434EFF' } )
 
 
         this.scene.add(this.room.model);
