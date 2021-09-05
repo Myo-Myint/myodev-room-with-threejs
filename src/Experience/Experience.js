@@ -6,6 +6,7 @@ import Resources from './Resources.js'
 import Renderer from './Renderer.js'
 import Camera from './Camera.js'
 import World from './World.js'
+import Navigation from './Navigation.js'
 
 import assets from './assets.js'
 
@@ -39,6 +40,7 @@ export default class Experience
         this.setRenderer()
         this.setResources()
         this.setWorld()
+        this.setNavigation()
         
         this.sizes.on('resize', () =>
         {
@@ -76,10 +78,10 @@ export default class Experience
 
         // Width and height
         const boundings = this.targetElement.getBoundingClientRect()
-        // this.config.width = boundings.width
-        // this.config.height = boundings.height || window.innerHeight
-        this.config.width = window.innerWidth
-        this.config.height = window.innerHeight
+        this.config.width =  window.innerWidth
+        this.config.height = boundings.height || window.innerHeight
+        this.config.smallestSide = Math.min(this.config.width, this.config.height)
+        this.config.largestSide = Math.max(this.config.width, this.config.height)
     }
 
     setStats()
@@ -116,17 +118,25 @@ export default class Experience
         this.world = new World()
     }
 
+    setNavigation()
+    {
+        this.navigation = new Navigation()
+    }
+
     update()
     {
-    
         this.camera.update()
+
+        if(this.renderer)
+            this.renderer.update()
 
         if(this.world)
             this.world.update()
         
-        if(this.renderer)
-            this.renderer.update()
+        if(this.navigation)
+            this.navigation.update()
 
+        
         window.requestAnimationFrame(() =>
         {
             this.stats.begin()
@@ -143,7 +153,9 @@ export default class Experience
         // Config
         const boundings = this.targetElement.getBoundingClientRect()
         this.config.width = boundings.width
-        this.config.height = boundings.height
+        this.config.height = boundings.height || window.innerHeight 
+        this.config.smallestSide = Math.min(this.config.width, this.config.height)
+        this.config.largestSide = Math.max(this.config.width, this.config.height)
 
         this.config.pixelRatio = Math.min(Math.max(window.devicePixelRatio, 1), 2)
 
