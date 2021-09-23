@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import Experience from './Experience'
+import normalizeWheel from 'normalize-wheel'
 
 export default class Navigation
 {
@@ -31,15 +32,20 @@ export default class Navigation
         this.view.drag.previousDelta = {}
         this.view.drag.previousDelta.x = 0
         this.view.drag.previousDelta.y = 0
-        this.view.drag.sensitivity = 1
+        // this.view.drag.sensitivity = 1
+        if(this.config.width <= 1000){
+            this.view.drag.sensitivity = 1.4
+        }else{
+            this.view.drag.sensitivity = 1
+        }
 
-        // if(this.config.width <= 1000){
-        //     this.view.drag.sensitivity = 1.4
-        // }else{
-        //     this.view.drag.sensitivity = 1
-        // }
+        this.view.zoom = {}
+        this.view.zoom.value = 30
+        this.view.zoom.smoothed = this.view.zoom.value
+        this.view.zoom.sensitivity = 0.01
+        this.view.zoom.smoothing = 0.005
 
-        // console.log(this.view.drag.sensitivity);
+
 
         /**
          * * Methods
@@ -65,7 +71,7 @@ export default class Navigation
         }
 
         /**
-         * * Catch Events
+         * * Mouse Events
          */
         this.view.onMouseDown = (_event) => 
         {
@@ -87,6 +93,57 @@ export default class Navigation
         }
 
         window.addEventListener('mousedown', this.view.onMouseDown)
+
+        /**
+         * * Touch Events
+         */
+        this.view.onTouchStart = (_event) => 
+        {
+            this.view.down(_event.touches[0].clientX, _event.touches[0].clientY)
+            window.addEventListener('touchend',this.view.onTouchEnd)
+            window.addEventListener('touchmove',this.view.onTouchMove)
+        }
+
+        this.view.onTouchEnd = () => 
+        {
+            window.removeEventListener('touchend', this.view.onTouchEnd)
+            window.removeEventListener('touchmove', this.view.onTouchMove)
+        }
+
+        this.view.onTouchMove = (_event) => 
+        {
+            this.view.move(_event.touches[0].clientX, _event.touches[0].clientY)
+        }
+
+        window.addEventListener('touchstart', this.view.onTouchStart)
+
+        /**
+         * * Scroll Wheel Events
+         */
+        this.view.zoomIn = (_delta) => 
+        {
+            this.view.zoom.value += _delta * this.view.zoom.sensitivity
+            console.log(_delta)
+        }
+
+        this.view.onScroll = (_event) =>
+        {
+            const normalized = normalizeWheel(_event)
+
+            this.view.zoomIn( normalized.pixelY )
+
+        }
+        window.addEventListener('wheel', this.view.onScroll, { passive: false })
+        window.addEventListener('mousewheel', this.view.onScroll, { passive: false })
+    
+        /**
+         * * Prevent Context Menu
+         */
+        this.view.onContextMenu = (_event) => 
+        {
+            _event.preventDefault()
+        }
+        window.addEventListener('contextmenu', this.view.onContextMenu)
     
     }
     
@@ -99,9 +156,11 @@ export default class Navigation
         this.view.spherical.value.theta -= this.view.drag.delta.x * this.view.drag.sensitivity / this.config.smallestSide
         this.view.spherical.value.phi -= this.view.drag.delta.y * this.view.drag.sensitivity / this.config.smallestSide
 
+        //drag
         this.view.drag.delta.x = 0
         this.view.drag.delta.y = 0
 
+        //smoothing
         this.view.spherical.smoothed.phi += (this.view.spherical.value.phi - this.view.spherical.smoothed.phi) * this.view.spherical.smoothing * this.time.delta
         this.view.spherical.smoothed.theta += (this.view.spherical.value.theta - this.view.spherical.smoothed.theta) * this.view.spherical.smoothing * this.time.delta
 
