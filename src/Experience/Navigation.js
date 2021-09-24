@@ -75,20 +75,24 @@ export default class Navigation
          */
         this.view.onMouseDown = (_event) => 
         {
+
+            _event.preventDefault()
             this.view.down(_event.clientX, _event.clientY)
 
             window.addEventListener('mouseup',this.view.onMouseUp)
             window.addEventListener('mousemove',this.view.onMouseMove)
         }
 
-        this.view.onMouseUp = () => 
+        this.view.onMouseUp = (_event) => 
         {
+            _event.preventDefault()
             window.removeEventListener('mouseup', this.view.onMouseUp)
             window.removeEventListener('mousemove', this.view.onMouseMove)
         }
 
         this.view.onMouseMove = (_event) => 
         {
+            _event.preventDefault()
             this.view.move(_event.clientX, _event.clientY)
         }
 
@@ -99,43 +103,27 @@ export default class Navigation
          */
         this.view.onTouchStart = (_event) => 
         {
+            _event.preventDefault()
             this.view.down(_event.touches[0].clientX, _event.touches[0].clientY)
             window.addEventListener('touchend',this.view.onTouchEnd)
             window.addEventListener('touchmove',this.view.onTouchMove)
         }
 
-        this.view.onTouchEnd = () => 
+        this.view.onTouchEnd = (_event) => 
         {
+            _event.preventDefault()
             window.removeEventListener('touchend', this.view.onTouchEnd)
             window.removeEventListener('touchmove', this.view.onTouchMove)
         }
 
         this.view.onTouchMove = (_event) => 
         {
+            _event.preventDefault()
             this.view.move(_event.touches[0].clientX, _event.touches[0].clientY)
         }
-
         window.addEventListener('touchstart', this.view.onTouchStart)
 
-        /**
-         * * Scroll Wheel Events
-         */
-        this.view.zoomIn = (_delta) => 
-        {
-            this.view.zoom.value += _delta * this.view.zoom.sensitivity
-            console.log(_delta)
-        }
-
-        this.view.onScroll = (_event) =>
-        {
-            const normalized = normalizeWheel(_event)
-
-            this.view.zoomIn( normalized.pixelY )
-
-        }
-        window.addEventListener('wheel', this.view.onScroll, { passive: false })
-        window.addEventListener('mousewheel', this.view.onScroll, { passive: false })
-    
+        
         /**
          * * Prevent Context Menu
          */
