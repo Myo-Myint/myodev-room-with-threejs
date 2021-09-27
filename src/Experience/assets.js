@@ -4,8 +4,8 @@ export default [
         data: {},
         items:
         [
-            { name: 'bakedOne', source: '/assets/finalBake.jpg', type: 'texture' },
-            { name: 'roomModel', source: '/assets/finalProduct.glb' },
+            { name: 'bakedOne', source: '/assets/packBaked.jpg', type: 'texture' },
+            { name: 'roomModel', source: '/assets/packRoom.glb' },
         ]
     }
 ]

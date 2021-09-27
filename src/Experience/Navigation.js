@@ -21,9 +21,21 @@ export default class Navigation
         this.view.spherical = {}
         this.view.spherical.value = new THREE.Spherical(25, Math.PI * 0.35,  Math.PI * 0.25)
         this.view.spherical.smoothed = this.view.spherical.value.clone()
-        this.view.spherical.smoothing = 0.005
+        this.view.spherical.smoothing = 0.003
+        this.view.spherical.limits = {}
+        this.view.spherical.limits.radius = { min: 10, max: 50}
+        this.view.spherical.limits.phi = { min: 0.01, max: Math.PI * 0.5}
+        this.view.spherical.limits.theta = { min:  -Math.PI * 0.5, max: 0 }
 
-        this.view.target = new THREE.Vector3(0, 1.8, 0)
+        this.view.target = {}
+        this.view.target.value = new THREE.Vector3(0, 1.8, 0)
+        this.view.target.smoothed = this.view.target.value.clone()
+        this.view.target.smoothing = 0.003
+        this.view.target.limits = {}
+        this.view.target.limits.x = { min: -5, max: 5}
+        this.view.target.limits.y = { min: -1, max: 5}
+        this.view.target.limits.z = { min: -5, max: 5}
+
 
         this.view.drag = {}
         this.view.drag.delta = {}
@@ -34,18 +46,22 @@ export default class Navigation
         this.view.drag.previousDelta.y = 0
         // this.view.drag.sensitivity = 1
         if(this.config.width <= 1000){
-            this.view.drag.sensitivity = 1.4
+            this.view.drag.sensitivity = 1.2
         }else{
             this.view.drag.sensitivity = 1
         }
 
+        this.view.drag.alternative = false
+
+        /**
+         * * Zoom
+         */
         this.view.zoom = {}
         this.view.zoom.value = 30
-        this.view.zoom.smoothed = this.view.zoom.value
         this.view.zoom.sensitivity = 0.01
+        this.view.zoom.smoothed = this.view.zoom.value
         this.view.zoom.smoothing = 0.005
-
-
+        this.view.zoom.delta = 0
 
         /**
          * * Methods
@@ -70,13 +86,22 @@ export default class Navigation
 
         }
 
+        this.view.zoomIn = (_delta) => 
+        {
+
+            this.view.zoom.delta += _delta
+
+        }
+
         /**
          * * Mouse Events
          */
         this.view.onMouseDown = (_event) => 
         {
-
             _event.preventDefault()
+
+            this.view.drag.alternative = _event.button === 2 || _event.ctrlKey || _event.shiftKey
+            
             this.view.down(_event.clientX, _event.clientY)
 
             window.addEventListener('mouseup',this.view.onMouseUp)
@@ -123,6 +148,21 @@ export default class Navigation
         }
         window.addEventListener('touchstart', this.view.onTouchStart)
 
+        /**
+         * Wheel
+         */
+        this.view.onWheel = (_event) =>
+        {
+            _event.preventDefault()
+
+            const normalized = normalizeWheel(_event)
+            this.view.zoomIn(normalized.pixelY)
+
+            
+
+        }
+        window.addEventListener('wheel', this.view.onWheel, {passive: false})
+        window.addEventListener('mousewheel', this.view.onWheel, {passive: false})
         
         /**
          * * Prevent Context Menu
@@ -141,22 +181,66 @@ export default class Navigation
         /**
          * * Update View
          */
-        this.view.spherical.value.theta -= this.view.drag.delta.x * this.view.drag.sensitivity / this.config.smallestSide
-        this.view.spherical.value.phi -= this.view.drag.delta.y * this.view.drag.sensitivity / this.config.smallestSide
+
+        this.view.spherical.value.radius += this.view.zoom.delta * this.view.zoom.sensitivity
+        this.view.spherical.value.radius = Math.min( Math.max( this.view.spherical.value.radius, this.view.spherical.limits.radius.min), this.view.spherical.limits.radius.max)
+
+
+        if(this.view.drag.alternative)
+        {
+           const up = new THREE.Vector3(0, 1, 0)
+           const right = new THREE.Vector3(-1, 0, 0)
+
+           up.applyQuaternion(this.camera.modes.default.instance.quaternion)
+           right.applyQuaternion(this.camera.modes.default.instance.quaternion)
+
+           up.multiplyScalar(this.view.drag.delta.y * 0.008)
+           right.multiplyScalar(this.view.drag.delta.x * 0.008)
+
+           this.view.target.value.add(up)
+           this.view.target.value.add(right)
+
+           /**
+            * * Apply View Limits
+            */
+           this.view.target.value.x = Math.min( Math.max( this.view.target.value.x, this.view.target.limits.x.min), this.view.target.limits.x.max)
+           this.view.target.value.y = Math.min( Math.max( this.view.target.value.y, this.view.target.limits.y.min), this.view.target.limits.y.max)
+           this.view.target.value.z = Math.min( Math.max( this.view.target.value.z, this.view.target.limits.z.min), this.view.target.limits.z.max)
+        }
+        else
+        {
+            this.view.spherical.value.theta -= this.view.drag.delta.x * this.view.drag.sensitivity / this.config.smallestSide
+            this.view.spherical.value.phi -= this.view.drag.delta.y * this.view.drag.sensitivity / this.config.smallestSide
+
+            /**
+             * * Apply Roatate Limits
+             */
+            this.view.spherical.value.theta = Math.min( Math.max( this.view.spherical.value.theta, this.view.spherical.limits.theta.min), this.view.spherical.limits.theta.max)
+            this.view.spherical.value.phi = Math.min( Math.max( this.view.spherical.value.phi, this.view.spherical.limits.phi.min), this.view.spherical.limits.phi.max)
+        }
+       
 
         //drag
         this.view.drag.delta.x = 0
         this.view.drag.delta.y = 0
+        this.view.zoom.delta = 0 
 
         //smoothing
+        this.view.spherical.smoothed.radius += (this.view.spherical.value.radius - this.view.spherical.smoothed.radius) * this.view.spherical.smoothing * this.time.delta
         this.view.spherical.smoothed.phi += (this.view.spherical.value.phi - this.view.spherical.smoothed.phi) * this.view.spherical.smoothing * this.time.delta
         this.view.spherical.smoothed.theta += (this.view.spherical.value.theta - this.view.spherical.smoothed.theta) * this.view.spherical.smoothing * this.time.delta
 
+        //smoothing
+        this.view.target.smoothed.x += (this.view.target.value.x - this.view.target.smoothed.x) * this.view.target.smoothing * this.time.delta
+        this.view.target.smoothed.y += (this.view.target.value.y - this.view.target.smoothed.y) * this.view.target.smoothing * this.time.delta
+        this.view.target.smoothed.z += (this.view.target.value.z - this.view.target.smoothed.z) * this.view.target.smoothing * this.time.delta
+
         const viewPosition = new THREE.Vector3()
         viewPosition.setFromSpherical(this.view.spherical.smoothed)
+        viewPosition.add(this.view.target.smoothed)
 
         this.camera.modes.default.instance.position.copy(viewPosition)
-        this.camera.modes.default.instance.lookAt(this.view.target)
+        this.camera.modes.default.instance.lookAt(this.view.target.smoothed)
 
     }
 }

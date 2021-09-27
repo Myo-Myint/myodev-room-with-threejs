@@ -24,6 +24,7 @@ export default class World
 
         this.room = {}
         this.room.model = this.resources.items.roomModel.scene
+        this.room.model.rotateY( - Math.PI / 2)
 
         this.room.texture = this.resources.items.bakedOne
         this.room.texture.encoding = THREE.sRGBEncoding
@@ -35,6 +36,7 @@ export default class World
             if(_child instanceof THREE.Mesh ){
                 _child.material = this.room.material
             }
+
         } )
 
       
